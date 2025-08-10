@@ -11,7 +11,7 @@ int main() {
 
     printf("Hi there! Welcome to Wordle!"); // Welcome statement 
 
-    for (guessCount = 1; guessCount < 6; guessCount++) { // For loop -- increments guessCount by 1 until the guesses reach 6 
+    for (guessCount = 1; guessCount < 7; guessCount++) { // For loop -- increments guessCount by 1 until the guesses reach 6 
         printf("\nEnter your #%d guess here: ", guessCount); // User guess input 
         fgets(playerGuess, sizeof(playerGuess), stdin); // User guess input 
         playerGuess[strcspn(playerGuess, "\n")] = '\0'; // Removes /n from the end of the player guess to make it 5 characters again 
@@ -19,7 +19,7 @@ int main() {
             printf("\nYou are correct! The wordle was %s", secretWord); 
             guessCount = 7; // Ends the for loop 
         } else {
-            feedbackFunction(secretWord, playerGuess);
+            feedbackFunction(secretWord, playerGuess); // Gives the user feedback on their guess
             printf("You are incorrect try again."); 
     }
     }
@@ -30,16 +30,31 @@ int main() {
 
 void feedbackFunction(char secretWord[], char playerGuess[]) {
     char feedback[] = "....."; // . Indicates that the letter is not in the word 
-    int used[5] = {0}; 
+    int used[5] = {0}; // Initialize array that keeps track of the letters used in the secret word 
 
-    for (int i = 0; i < 5; i++ ) {
-        if (playerGuess[i] == secretWord[i]) {
-            feedback[i] = playerGuess[i]; 
-            used[i] = 1; 
+    for (int i = 0; i < 5; i++ ) { // First loop that checks for correct letters in the correct place 
+        if (playerGuess[i] == secretWord[i]) { 
+            feedback[i] = 'X';
+            used[i] = 1; // marks off the index that has been used 
         }
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++ ) { // This loop checks for correct letters in the wrong place 
+        if (feedback[i] == 'X') { // skip this index if the guess letter has been used in the loop above 
+            continue;
+        }
+        for (int j = 0; j < 5; j++) { 
+            if (used[j] == 0 && playerGuess[i] == secretWord[j]) { 
+                feedback[i] = 'O'; 
+                used[j] = 1;
+            }
+        }
+
+    }
+
+  
+
+    for (int i = 0; i < 5; i++) { // prints out feedback 
         printf("%c", feedback[i]);
     }
     printf("\n");
