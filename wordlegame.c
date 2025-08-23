@@ -3,6 +3,7 @@
 
 void feedback_function(char secretWord[], char playerGuess[]);
 void input_buffer(void); 
+void instructions(void); 
 
 int main() {
     char secretWord[] = "flake"; // initialize secret word 
@@ -11,6 +12,7 @@ int main() {
 
 
     printf("Hi there! Welcome to Wordle!"); // Welcome statement 
+    instructions(); 
 
     for (guessCount = 1; guessCount < 7; guessCount++) { // For loop -- increments guessCount by 1 until the guesses reach 6 
         printf("\nEnter your #%d guess here: ", guessCount); // User guess input 
@@ -36,7 +38,7 @@ int main() {
             break;
         } else {
             feedback_function(secretWord, playerGuess); // Gives the user feedback on their guess
-            printf("You are incorrect try again."); 
+            printf("\nYou are incorrect try again.\n"); 
     }
     }
      
@@ -44,9 +46,12 @@ int main() {
     return 0; 
     }
 
+
 void feedback_function(char secretWord[], char playerGuess[]) {
     char feedback[] = "....."; // . Indicates that the letter is not in the word 
     int used[5] = {0}; // Initialize array that keeps track of the letters used in the secret word 
+
+    printf("\n");
 
     for (int i = 0; i < 5; i++ ) { // First loop that checks for correct letters in the correct place 
         if (playerGuess[i] == secretWord[i]) { 
@@ -76,7 +81,20 @@ void feedback_function(char secretWord[], char playerGuess[]) {
     printf("\n");
 }
 
+
 void input_buffer(void) {
      int c;
     while ( (c = getchar()) != '\n' && c != EOF) {}
+}
+
+
+void instructions() { 
+    printf("\nYou have 6 tries to guess the 5 letter secret word");
+    puts(
+        "\nAfter each guess you will recieve feedback and hints for each character in your guess"
+        "\n . = Character not found at all"
+        "\n O = Character is in the word but in wrong place"
+        "\n X = Charcter is in the word and is in the correct place."
+        "\nHints will reset for each guess."
+                );
 }
