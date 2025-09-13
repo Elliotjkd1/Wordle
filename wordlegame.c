@@ -12,11 +12,90 @@
 void feedback_function(char secretWord[], char playerGuess[]);
 void input_buffer(void); 
 void instructions(void); 
+void game_loop(void); 
+void load_wordlist(void);
 char* choose_word(void);
 
-
+static char wordList[MAXWORDS][WORDLEN]; // static so it persists
+static int wordCount = 0;
 
 int main() {
+    srand(time(NULL)); // everytime you run the program the time changes so it will set a different seed for rand
+    load_wordlist(); 
+    int userChoice = 1; 
+    while (userChoice == 1) { 
+        game_loop();
+        printf("\nPlay Again? (YES: 1, NO: 0) Enter here: ");
+        scanf("%d", &userChoice); 
+        printf("\n"); 
+        input_buffer();
+    }
+    return 0; 
+}
+
+
+void feedback_function(char secretWord[], char playerGuess[]) {
+    char feedback[] = "....."; // . Indicates that the letter is not in the word 
+    int used[5] = {0}; // Initialize array that keeps track of the letters used in the secret word , 0 = not used, 1 = used 
+
+    printf("\n");
+    for (int i = 0; i < 5; i++ ) { // First loop that checks for correct letters in the correct place 
+        if (playerGuess[i] == secretWord[i]) { 
+            feedback[i] = 'X';
+            used[i] = 1; // marks off the index that has been used 
+        }
+    }
+
+    for (int i = 0; i < 5; i++ ) { // This loop checks for correct letters in the right place 
+        if (feedback[i] == 'X') { // skip this index if the guess letter has been used in the loop above 
+            continue;
+        }
+        for (int j = 0; j < 5; j++) {  // this loop check for correct letters in wrong places 
+            if (used[j] == 0 && playerGuess[i] == secretWord[j]) { // checks to see if the word has been used and if the letter is anywhere in the secret word
+                feedback[i] = 'O'; 
+                used[j] = 1; // once the letter has been used we set it 1 one indicating that is has been already used. 
+            }
+        }
+
+    }
+
+  
+
+    for (int i = 0; i < 5; i++) { // prints out feedback 
+        printf("%c", feedback[i]);
+    }
+    printf("\n");
+}
+
+// clear the buffer input which pulls one character at a time until it hits a newline or end of file. 
+//takes character by character and outputs it into a empty loop {}
+void input_buffer(void) {
+     int c;
+    while ( (c = getchar()) != '\n' && c != EOF) {}
+}
+
+// instruction function 
+void instructions(void) { 
+    printf("\nYou have 6 tries to guess the 5 letter secret word!");
+    puts(
+        "\nAfter each guess you will recieve feedback and hints for each character in your guess."
+        "\n . = Character not found at all."
+        "\n O = Character is in the word but in wrong place."
+        "\n X = Charcter is in the word and is in the correct place."
+        "\nHints will reset for each guess."
+                );
+}
+
+
+char* choose_word(void) {
+    int index = rand() % wordCount; // the random numer falls between 0 and count -1 
+
+    return wordList[index]; 
+
+}
+
+
+void game_loop(void) { 
     char* secretWord = choose_word();// initialize secret word *calls the choose word function*
     char playerGuess[10]; // Initialize player guess variable 
     int guessCount; // Initialize guessCount ( 6 TOTAL guesses )
@@ -67,78 +146,19 @@ int main() {
             }
     }
     }
-    
-    
-    return 0; 
-    }
 
-
-void feedback_function(char secretWord[], char playerGuess[]) {
-    char feedback[] = "....."; // . Indicates that the letter is not in the word 
-    int used[5] = {0}; // Initialize array that keeps track of the letters used in the secret word , 0 = not used, 1 = used 
-
-    printf("\n");
-    for (int i = 0; i < 5; i++ ) { // First loop that checks for correct letters in the correct place 
-        if (playerGuess[i] == secretWord[i]) { 
-            feedback[i] = 'X';
-            used[i] = 1; // marks off the index that has been used 
-        }
-    }
-
-    for (int i = 0; i < 5; i++ ) { // This loop checks for correct letters in the right place 
-        if (feedback[i] == 'X') { // skip this index if the guess letter has been used in the loop above 
-            continue;
-        }
-        for (int j = 0; j < 5; j++) {  // this loop check for correct letters in wrong places 
-            if (used[j] == 0 && playerGuess[i] == secretWord[j]) { // checks to see if the word has been used and if the letter is anywhere in the secret word
-                feedback[i] = 'O'; 
-                used[j] = 1; // once the letter has been used we set it 1 one indicating that is has been already used. 
-            }
-        }
-
-    }
-
-  
-
-    for (int i = 0; i < 5; i++) { // prints out feedback 
-        printf("%c", feedback[i]);
-    }
-    printf("\n");
-}
-
-// clear the buffer input which pulls one character at a time until it hits a newline or end of file. 
-//takes character by character and outputs it into a empty loop {}
-void input_buffer(void) {
-     int c;
-    while ( (c = getchar()) != '\n' && c != EOF) {}
-}
-
-// instruction function 
-void instructions(void) { 
-    printf("\nYou have 6 tries to guess the 5 letter secret word");
-    puts(
-        "\nAfter each guess you will recieve feedback and hints for each character in your guess"
-        "\n . = Character not found at all"
-        "\n O = Character is in the word but in wrong place"
-        "\n X = Charcter is in the word and is in the correct place."
-        "\nHints will reset for each guess."
-                );
 }
 
 
-char* choose_word(void) {
+
+void load_wordlist(void) { 
     FILE *file;
-    static char wordList[MAXWORDS][WORDLEN]; // static so it persists
     
     file = fopen("dictionary.txt", "r");
-     
-
     // buffer 
     // + 20 so it is able to clip every word and not have any characters left over. 
     char buffer[WORDLEN + 20]; 
 
-    // count 
-    int count = 0; 
 
     printf("\n");
     printf("Loading word list.....");
@@ -149,19 +169,12 @@ char* choose_word(void) {
         buffer[strcspn(buffer, "\r\n")] = '\0'; // remove newline 
 
         if (strlen(buffer) == 5) {
-            strncpy(wordList[count], buffer, WORDLEN-1); // copies buffer to wordlist at the increasing index(count) and only 5 chars are allowed to be copied 
-            wordList[count][WORDLEN-1] = '\0'; // manually adds '\0' to end to make sure it is a proper string 
-            count++; 
-            if (count >= MAXWORDS) break;
+            strncpy(wordList[wordCount], buffer, WORDLEN-1); // copies buffer to wordlist at the increasing index(count) and only 5 chars are allowed to be copied 
+            wordList[wordCount][WORDLEN-1] = '\0'; // manually adds '\0' to end to make sure it is a proper string 
+            wordCount++; 
+            if (wordCount >= MAXWORDS) break;
         }
     }
 
     fclose(file);
-
-    srand(time(NULL)); // everytime you run the program the time changes so it will set a different seed for rand
-
-    int index = rand() % count; // the random numer falls between 0 and count -1 
-
-    return wordList[index]; 
-
 }
