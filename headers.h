@@ -10,3 +10,4 @@ void instructions(void);
 void game_loop(void); 
 void load_wordlist(void);
 char* choose_word(void);
+void prompt_guess(int guessCount, char* playerGuess, int guessSize); 

@@ -69,29 +69,30 @@ char* choose_word(void) {
     return word; 
 }   
 
+void prompt_guess(int guessCount, char* playerGuess, int guessSize) { 
+    printf("\nEnter your #%d guess here: ", guessCount);
+    fgets(playerGuess, guessSize, stdin);
+
+    if (strchr(playerGuess, '\n') == NULL) { //checking to see if there is left over characters 
+        input_buffer(); 
+    } else {
+        playerGuess[strcspn(playerGuess, "\n")] = '\0'; // Removes /n from the end of the player guess to make it 5 characters again 
+
+    }
+    for (int i = 0; playerGuess[i]; i++) {
+            playerGuess[i] = tolower(playerGuess[i]); // converts to lowercase by looping through each index in player guess and converting it to lowercase 
+        }
+}
 
 void game_loop(void) { 
     char* secretWord = choose_word();// initialize secret word *calls the choose word function*
-    char playerGuess[WORDLEN + 1]; // Initialize player guess variable 
-    int guessSize = WORDLEN + 2; 
+    char playerGuess[WORDLEN]; // Initialize player guess variable 
+    int guessSize = WORDLEN; 
     int guessCount; // Initialize guessCount ( 6 TOTAL guesses )
 
 
     for (guessCount = 1; guessCount < 7; guessCount++) { // For loop -- increments guessCount by 1 until the guesses reach 6 
-        printf("\nEnter your #%d guess here: ", guessCount); // User guess input 
-
-        fgets(playerGuess, sizeof(playerGuess), stdin); // User guess input 
-
-        for (int i = 0; playerGuess[i]; i++) {
-            playerGuess[i] = tolower(playerGuess[i]); // converts to lowercase by looping through each index in player guess and converting it to lowercase 
-        }
-
-        if (strchr(playerGuess, '\n') == NULL) { //checking to see if there is left over characters 
-            input_buffer(); 
-        } else {
-            playerGuess[strcspn(playerGuess, "\n")] = '\0'; // Removes /n from the end of the player guess to make it 5 characters again 
-
-        }
+        prompt_guess(guessCount, playerGuess, guessSize); 
 
         if (strlen(playerGuess) != 5) { // is the length of the player's guess doesn't equal 5 we will print a messsage telling them to enter a 5 letter word. 
             printf("\nPlease enter a 5 letter word next time!\n");
