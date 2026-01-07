@@ -71,15 +71,11 @@ void game_loop(const struct Dictionary *dict) {
     if (displayInstruct == 1) {
         instructions();
     }
-        
-
-
 
     char secret[WORD_LEN + 1]; 
 
     choose_secret(dict, secret); 
     to_lower_str(secret); 
- 
     
     for (int guessCount = 1; guessCount <= MAX_TRIES; guessCount++) { 
         char userGuess[WORD_LEN + 1];
@@ -93,11 +89,17 @@ void game_loop(const struct Dictionary *dict) {
             input_buffer(); 
         }
 
+        printf("\n"); 
+        print_feedback(userGuess, secret); 
+        printf("\n"); 
+
         if (strcmp(userGuess, secret) == 0) { 
             printf("Correct! You win! The wordle was %s\n", secret);
             return; 
         } else { 
             printf("Incorrect! Try Again\n"); 
+            printf("\n"); 
+
         }
 
     }
@@ -128,6 +130,48 @@ int check_guess(char guess[WORD_LEN + 1], const struct Dictionary *dict) {
 
     return 0; 
 }
+
+void print_feedback(char guess[WORD_LEN + 1 ], char secret[WORD_LEN + 1 ]) { 
+    int isGreen[WORD_LEN] = {0}; 
+    int isYellow[WORD_LEN] = {0}; 
+    int usedIdx[WORD_LEN] = {0}; 
+
+
+    for (int i = 0; i < WORD_LEN; i++) { 
+        if (guess[i] == secret[i]) { 
+            isGreen[i] = 1; 
+            usedIdx[i] = 1; 
+        }
+
+    }
+
+    for (int i = 0; i < WORD_LEN; i++) { 
+        if (isGreen[i] == 1 ) { 
+            continue; 
+        }
+        for (int j = 0; j < WORD_LEN; j++) { 
+            if (usedIdx[j] != 1 && guess[i] == secret[j]) { 
+                isYellow[i] = 1; 
+                usedIdx[j] = 1; 
+                break; 
+            }
+        }
+    }
+
+    for (int i = 0; i < WORD_LEN; i++) { 
+        char c = (char)toupper((unsigned char)guess[i]);
+
+        if (isGreen[i]) {
+            printf("[%c] ", c);
+        } else if (isYellow[i]) {
+            printf("(%c) ", c);
+        } else {
+            printf("%c ", c);
+        }
+    }
+    printf("\n");
+
+    }
 
 void choose_secret(const struct Dictionary *dict, char secret[WORD_LEN + 1 ]) { 
     int index = rand() % dict->count; 

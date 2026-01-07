@@ -29,5 +29,6 @@ void choose_secret(const struct Dictionary *dict, char secret[WORD_LEN +1]);
 int load_dictionary(const char *filename, struct Dictionary *dict);     
 int filter_dictionary(const struct Dictionary *fullDict, struct Dictionary *filteredDict, int word_len); 
 void to_lower_str(char *str); 
+void print_feedback(char guess[WORD_LEN + 1 ], char secret[WORD_LEN + 1 ]); 
 
 #endif
