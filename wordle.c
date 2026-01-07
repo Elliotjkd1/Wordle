@@ -90,6 +90,7 @@ void game_loop(const struct Dictionary *dict) {
         while (!check_guess(userGuess, dict)) { 
             printf("Invalid guess. Enter a real %d-letter word: ", WORD_LEN);
             scanf("%5s", userGuess);
+            input_buffer(); 
         }
 
         if (strcmp(userGuess, secret) == 0) { 
