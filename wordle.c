@@ -48,6 +48,8 @@ int filter_dictionary(const struct Dictionary *fullDict, struct Dictionary *filt
 void game_loop(const struct Dictionary *dict) { 
     int displayInstruct = 0;  
 
+    int key[26] = {0};
+
     
     while (1) {
         printf("Show instructions? (1 = yes, 0 = no): ");
@@ -92,6 +94,8 @@ void game_loop(const struct Dictionary *dict) {
         printf("\n"); 
         print_feedback(userGuess, secret); 
         printf("\n"); 
+        print_and_update_keyboard(userGuess, secret, key); 
+        printf("\n");
 
         if (strcmp(userGuess, secret) == 0) { 
             printf("Correct! You win! The wordle was %s\n", secret);
@@ -172,6 +176,70 @@ void print_feedback(char guess[WORD_LEN + 1 ], char secret[WORD_LEN + 1 ]) {
     printf("\n");
 
     }
+
+void print_and_update_keyboard(char guess[WORD_LEN + 1], char secret[WORD_LEN + 1 ], int key[26]) { 
+    int isGreen[WORD_LEN] = {0}; 
+    int isYellow[WORD_LEN] = {0}; 
+    int usedIdx[WORD_LEN] = {0}; 
+
+    for (int i = 0; i < WORD_LEN; i++) { 
+        if (guess[i] == secret[i]) { 
+            isGreen[i] = 1; 
+            usedIdx[i] = 1; 
+        }
+
+    }
+
+    for (int i = 0; i < WORD_LEN; i++) { 
+        if (isGreen[i] == 1 ) { 
+            continue; 
+        }
+        for (int j = 0; j < WORD_LEN; j++) { 
+            if (usedIdx[j] != 1 && guess[i] == secret[j]) { 
+                isYellow[i] = 1; 
+                usedIdx[j] = 1; 
+                break; 
+            }
+        }
+    }
+
+    for (int i = 0; i < WORD_LEN; i++) { 
+        char c = guess[i]; 
+
+        if (c < 'a' || c > 'z') { 
+            continue; 
+        }
+        int idx = c - 'a'; 
+        int newState = 1; 
+        if (isYellow[i]) newState = 2; 
+        if (isGreen[i]) newState = 3; 
+
+        if(newState > key[idx]) key[idx] = newState; 
+    }
+
+    printf("KEYBOARD:\n");
+
+    const char *rows[] = { "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM" };
+    int indents[] = {0,1,2 };
+
+    for (int r = 0; r < 3; r++) { 
+        for (int s = 0; s < indents[r]; s++) { 
+            printf(" "); 
+        }
+
+        for (int j = 0; rows[r][j] != '\0'; j++) { 
+            char L = rows[r][j];
+            int st = key[L - 'A'];
+
+            if (st == 3)      printf("[%c] ", L);   // green
+            else if (st == 2) printf("(%c) ", L);   // yellow
+            else if (st == 1) printf(" -  ");       // gray
+            else              printf(" %c  ", L);   // unknown
+            
+        }
+        printf("\n"); 
+    }
+}
 
 void choose_secret(const struct Dictionary *dict, char secret[WORD_LEN + 1 ]) { 
     int index = rand() % dict->count; 
