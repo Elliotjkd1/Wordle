@@ -135,7 +135,13 @@ int check_guess(char guess[WORD_LEN + 1], const struct Dictionary *dict) {
     return 0; 
 }
 
-void print_feedback(char guess[WORD_LEN + 1 ], char secret[WORD_LEN + 1 ]) { 
+void print_feedback(char guess[WORD_LEN + 1 ], char secret[WORD_LEN + 1 ]) {
+    static char historyGuesses[MAX_TRIES][WORD_LEN + 1];
+    static int  historyGreen[MAX_TRIES][WORD_LEN];
+    static int  historyYellow[MAX_TRIES][WORD_LEN];
+    static int  numGuesses = 0;
+
+
     int isGreen[WORD_LEN] = {0}; 
     int isYellow[WORD_LEN] = {0}; 
     int usedIdx[WORD_LEN] = {0}; 
@@ -162,20 +168,43 @@ void print_feedback(char guess[WORD_LEN + 1 ], char secret[WORD_LEN + 1 ]) {
         }
     }
 
-    for (int i = 0; i < WORD_LEN; i++) { 
-        char c = (char)toupper((unsigned char)guess[i]);
-
-        if (isGreen[i]) {
-            printf("[%c] ", c);
-        } else if (isYellow[i]) {
-            printf("(%c) ", c);
-        } else {
-            printf("%c ", c);
+    if (numGuesses < MAX_TRIES) { 
+        for (int i = 0; i < WORD_LEN; i++) { 
+            historyGuesses[numGuesses][i] = guess[i]; 
+            historyGuesses[numGuesses][WORD_LEN] = '\0'; 
         }
+        for (int i = 0; i < WORD_LEN; i++) {
+            historyGreen[numGuesses][i] = isGreen[i];
+            historyYellow[numGuesses][i] = isYellow[i];
+        }
+        numGuesses++; 
+    }
+
+     printf("BOARD:\n");
+
+
+   for (int row = 0; row < numGuesses; row++){ 
+    for(int col = 0; col < WORD_LEN; col++){ 
+        char c = (char)toupper((unsigned char)historyGuesses[row][col]); 
+
+        if (historyGreen[row][col])       printf("[%c] ", c);
+        else if (historyYellow[row][col]) printf("(%c) ", c);
+        else                          printf(" %c  ", c);
+
+    }
+    printf("\n"); 
+   }
+
+
+    for (int row = numGuesses; row < MAX_TRIES; row++) {
+        for (int col = 0; col < WORD_LEN; col++) {
+            printf(" _  ");
+        }
+        printf("\n");
     }
     printf("\n");
+}
 
-    }
 
 void print_and_update_keyboard(char guess[WORD_LEN + 1], char secret[WORD_LEN + 1 ], int key[26]) { 
     int isGreen[WORD_LEN] = {0}; 
